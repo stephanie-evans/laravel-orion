@@ -18,8 +18,10 @@ class CreatePostsTable extends Migration
 
             $table->string('title');
             $table->text('body');
+            $table->float('stars')->nullable();
             $table->string('tracking_id')->nullable();
             $table->jsonb('meta')->nullable();
+            $table->jsonb('options')->nullable();
             $table->unsignedInteger('position')->default(0);
 
             $table->unsignedBigInteger('user_id')->nullable();

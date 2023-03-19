@@ -41,10 +41,17 @@ class RelationsResolver implements \Orion\Contracts\RelationsResolver
      */
     public function requestedRelations(Request $request): array
     {
-        $requestedIncludesStr = $request->get('include', '');
-        $requestedIncludes = explode(',', $requestedIncludesStr);
+        $requestedIncludesQuery = collect(explode(',', $request->query('include', '')));
+        $requestedIncludesBody = collect($request->get('includes', []))->pluck('relation');
 
-        $allowedIncludes = array_unique(array_merge($this->includableRelations, $this->alwaysIncludedRelations));
+        $requestedIncludes = $requestedIncludesQuery
+            ->merge($requestedIncludesBody)
+            ->merge($this->alwaysIncludedRelations)
+            ->unique()->filter()->all();
+
+        $allowedIncludes = array_unique(
+            array_merge($this->includableRelations, $this->alwaysIncludedRelations)
+        );
 
         $validatedIncludes = [];
 
@@ -64,10 +71,12 @@ class RelationsResolver implements \Orion\Contracts\RelationsResolver
                         $validatedIncludes[] = $requestedInclude;
                     }
                 }
+            } elseif (in_array('*', $allowedIncludes, true)) {
+                $validatedIncludes[] = $requestedInclude;
             }
         }
 
-        return array_unique(array_merge($validatedIncludes, $this->alwaysIncludedRelations));
+        return $validatedIncludes;
     }
 
     /**
@@ -113,7 +122,7 @@ class RelationsResolver implements \Orion\Contracts\RelationsResolver
      */
     public function relationForeignKeyFromRelationInstance(Relation $relationInstance): string
     {
-        $laravelVersion = (float)app()->version();
+        $laravelVersion = (float) app()->version();
 
         return $laravelVersion > 5.7 || get_class(
             $relationInstance
@@ -132,7 +141,7 @@ class RelationsResolver implements \Orion\Contracts\RelationsResolver
         switch (get_class($relationInstance)) {
             case HasOne::class:
             case MorphOne::class:
-                return $relationInstance->getParent()->getTable() . '.' . $relationInstance->getLocalKeyName();
+                return $relationInstance->getParent()->getTable().'.'.$relationInstance->getLocalKeyName();
             case BelongsTo::class:
             case MorphTo::class:
                 return $relationInstance->getQualifiedOwnerKeyName();

@@ -25,7 +25,7 @@ return [
         'jobs' => 'App\\Jobs\\'
     ],
     'auth' => [
-        'guard' => 'api'
+        'guard' => 'api',
     ],
     'api' => [
         'limit' => 10,
@@ -50,7 +50,7 @@ return [
         'servers' => [
             ['url' => env('APP_URL').'/api', 'description' => 'Default Environment'],
         ],
-        'tags' => []
+        'tags' => [],
     ],
     'transactions' => [
         'enabled' => false,
@@ -59,4 +59,19 @@ return [
         'case_sensitive' => true, // TODO: set to "false" by default in 3.0 release
     ],
     'tracer' => 'App\\Loggers\\LogTrace',
+    /*
+     |--------------------------------------------------------------------------
+     | Max Nested Depth
+     |--------------------------------------------------------------------------
+     |
+     | This value is the maximum depth of nested filters.
+     | You will most likely need this to be maximum at 1, but
+     | you can increase this number, if necessary. Please
+     | be aware that the depth generate dynamic rules and can slow
+     | your application if someone sends a request with thousands of nested
+     | filters.
+     |
+     */
+    'max_nested_depth' => 1,
+    'use_validated' => false,
 ];
